@@ -1,0 +1,6 @@
+build/
+cmake-build-*/
+run_*/
+*.vtk
+slurm-*.out
+.DS_Store

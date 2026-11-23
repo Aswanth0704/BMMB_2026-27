@@ -1,0 +1,43 @@
+#!/bin/bash
+# FILENAME: woundcpp3D.sub
+#
+# Dura wound-healing run on a Slurm cluster (written for Purdue's Negishi).
+#
+# Usage: copy this file, the woundcpp3D binary and the mesh into a fresh run
+# directory, then
+#   sbatch woundcpp3D.sub
+#
+# The binary reads bare relative mesh paths and writes all .vtk/.txt output to
+# the working directory, so every case needs its own directory.
+#
+# Edit the account (-A) and modules for your cluster. Set --time to the
+# maximum walltime your queue allows; a run interrupted by the walltime can be
+# resumed from its last checkpoint with WOUND_RESTART.
+
+#SBATCH -A abuganza
+#SBATCH --partition=cpu
+#SBATCH --nodes=1
+#SBATCH --ntasks=25
+#SBATCH --time=14-00:00:00
+#SBATCH --job-name=dura_wound
+#SBATCH --output=slurm-%j.out
+
+module purge
+module load gcc/12.2.0
+module load boost/1.80.0
+
+export OMP_NUM_THREADS=${SLURM_NTASKS:-12}
+export OMP_PROC_BIND=close
+export OMP_PLACES=cores
+
+echo "host        : $(hostname)"
+echo "threads     : $OMP_NUM_THREADS"
+echo "started     : $(date)"
+echo "WOUND_MESH  : ${WOUND_MESH:-<default>}"
+echo "WOUND_TSETTLE: ${WOUND_TSETTLE:-<default>}"
+echo "WOUND_TFINAL : ${WOUND_TFINAL:-<default>}"
+echo "WOUND_OUT    : ${WOUND_OUT:-<default>}"
+
+./woundcpp3D
+
+echo "finished    : $(date)"
